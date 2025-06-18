@@ -1,10 +1,9 @@
-﻿// DeleteUserForm.cs
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace PermissionManagement
-{
+namespace PermissionManagement;
+
     public partial class DeleteUserForm : Form
     {
         private List<User> _allUsers;
@@ -97,4 +96,3 @@ namespace PermissionManagement
             }
         }
     }
-}
