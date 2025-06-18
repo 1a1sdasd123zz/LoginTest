@@ -29,6 +29,8 @@ public enum Permission
     FileAccess,
     [PermissionInfo("删除用户", "删除系统用户")]
     DeleteUser, // 新增权限项
+    [PermissionInfo("相机配置", "设置相机曝光和增益等参数")]
+    CameraSetting, // 新增权限项
 }
 
 // 权限信息特性
@@ -77,7 +79,7 @@ public class User
 // 角色类型枚举
 public enum RoleType
 {
-    Administrator,  // 管理员
+    Administrator = 0,  // 管理员
     Engineer,     // 工程师
     Operator      // 操作员
 }

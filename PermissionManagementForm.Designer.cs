@@ -32,7 +32,6 @@ namespace PermissionManagement
         {
             this.btnSave = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.cboRole = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // btnSave
@@ -59,7 +58,6 @@ namespace PermissionManagement
             this.ClientSize = new System.Drawing.Size(561, 494);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
-            this.Controls.Add(this.cboRole);
             this.Name = "PermissionConfigForm";
             this.Text = "权限管理";
             this.ResumeLayout(false);
@@ -67,9 +65,10 @@ namespace PermissionManagement
         }
 
         #endregion
+
+        private ComboBox cboRole;
         private ListView lvPermissions;
         private Button btnSave;
         private Button btnCancel;
-        private ComboBox cboRole;
     }
 }

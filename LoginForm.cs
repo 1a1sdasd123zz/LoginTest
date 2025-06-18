@@ -3,6 +3,7 @@ using PermissionManagement;
 using System.Drawing;
 using System.Windows.Forms;
 using System;
+using System.Collections.Generic;
 
 namespace PermissionManagement;
 
@@ -11,9 +12,6 @@ public partial class LoginForm : Form
     public LoginForm()
     {
         InitializeComponent();
-        this.Text = "系统登录";
-        this.Size = new Size(300, 200);
-        this.StartPosition = FormStartPosition.CenterScreen;
 
         // 在构造函数中调用 LoadUsers 方法
         LoadUsers();
@@ -24,7 +22,7 @@ public partial class LoginForm : Form
     {
         cboUsername.Items.Clear();
 
-        // 从数据库获取所有用户
+        // 从数据库获取所有普通用户
         var users = DatabaseHelper.GetAllUsers();
 
         foreach (var user in users)

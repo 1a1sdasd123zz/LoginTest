@@ -42,7 +42,7 @@ namespace PermissionManagement
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(41, 32);
+            this.label1.Location = new System.Drawing.Point(80, 37);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(94, 24);
             this.label1.TabIndex = 0;
@@ -51,7 +51,7 @@ namespace PermissionManagement
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(41, 71);
+            this.label2.Location = new System.Drawing.Point(80, 76);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(70, 24);
             this.label2.TabIndex = 1;
@@ -59,7 +59,7 @@ namespace PermissionManagement
             // 
             // txtPassword
             // 
-            this.txtPassword.Location = new System.Drawing.Point(141, 71);
+            this.txtPassword.Location = new System.Drawing.Point(180, 76);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '*';
             this.txtPassword.Size = new System.Drawing.Size(160, 35);
@@ -67,7 +67,7 @@ namespace PermissionManagement
             // 
             // btnLogin
             // 
-            this.btnLogin.Location = new System.Drawing.Point(115, 209);
+            this.btnLogin.Location = new System.Drawing.Point(154, 214);
             this.btnLogin.Name = "btnLogin";
             this.btnLogin.Size = new System.Drawing.Size(77, 35);
             this.btnLogin.TabIndex = 4;
@@ -77,7 +77,7 @@ namespace PermissionManagement
             // 
             // btnRegister
             // 
-            this.btnRegister.Location = new System.Drawing.Point(227, 209);
+            this.btnRegister.Location = new System.Drawing.Point(266, 214);
             this.btnRegister.Name = "btnRegister";
             this.btnRegister.Size = new System.Drawing.Size(74, 35);
             this.btnRegister.TabIndex = 5;
@@ -88,7 +88,7 @@ namespace PermissionManagement
             // cboUsername
             // 
             this.cboUsername.FormattingEnabled = true;
-            this.cboUsername.Location = new System.Drawing.Point(141, 24);
+            this.cboUsername.Location = new System.Drawing.Point(180, 29);
             this.cboUsername.Name = "cboUsername";
             this.cboUsername.Size = new System.Drawing.Size(160, 32);
             this.cboUsername.TabIndex = 6;
@@ -97,7 +97,7 @@ namespace PermissionManagement
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(41, 128);
+            this.label3.Location = new System.Drawing.Point(80, 133);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(82, 24);
             this.label3.TabIndex = 7;
@@ -106,7 +106,7 @@ namespace PermissionManagement
             // lbl_Role
             // 
             this.lbl_Role.AutoSize = true;
-            this.lbl_Role.Location = new System.Drawing.Point(137, 128);
+            this.lbl_Role.Location = new System.Drawing.Point(176, 133);
             this.lbl_Role.Name = "lbl_Role";
             this.lbl_Role.Size = new System.Drawing.Size(46, 24);
             this.lbl_Role.TabIndex = 8;
@@ -114,7 +114,7 @@ namespace PermissionManagement
             // 
             // LoginForm
             // 
-            this.ClientSize = new System.Drawing.Size(428, 313);
+            this.ClientSize = new System.Drawing.Size(441, 300);
             this.Controls.Add(this.lbl_Role);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.cboUsername);
@@ -124,7 +124,8 @@ namespace PermissionManagement
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Name = "LoginForm";
-            this.Text = "系统登录";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "登录";
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -136,7 +137,7 @@ namespace PermissionManagement
         private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.Button btnLogin;
         private System.Windows.Forms.Button btnRegister;
-        private ComboBox cboUsername;
+        public ComboBox cboUsername;
         private Label label3;
         private Label lbl_Role;
     }

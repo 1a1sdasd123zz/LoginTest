@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -10,6 +9,7 @@ namespace PermissionManagement;
 // 角色权限配置窗体
 public partial class PermissionConfigForm : Form
 {
+
     public PermissionConfigForm()
     {
         InitializeComponent();
@@ -22,32 +22,6 @@ public partial class PermissionConfigForm : Form
 
     private void InitializeUI()
     {
-        // 创建角色选择下拉框
-        Label lblRole = new Label();
-        lblRole.Text = "选择角色:";
-        lblRole.Location = new System.Drawing.Point(20, 20);
-        lblRole.Size = new System.Drawing.Size(70, 20);
-        this.Controls.Add(lblRole);
-
-        // 创建权限列表视图
-        lvPermissions = new ListView();
-        // 设置ListView属性...
-
-        // 添加列
-        lvPermissions.Columns.Add("权限名称", 200);
-        lvPermissions.Columns.Add("描述", 300);
-
-
-        cboRole = new ComboBox();
-        cboRole.Location = new System.Drawing.Point(100, 20);
-        cboRole.Size = new System.Drawing.Size(200, 25);
-        cboRole.DropDownStyle = ComboBoxStyle.DropDownList;
-        cboRole.SelectedIndexChanged += CboRole_SelectedIndexChanged;
-        this.Controls.Add(cboRole);
-
-        // 加载角色数据
-        LoadRoles();
-
         // 创建权限列表视图
         lvPermissions = new ListView();
         lvPermissions.Location = new System.Drawing.Point(20, 60);
@@ -55,6 +29,20 @@ public partial class PermissionConfigForm : Form
         lvPermissions.View = View.Details;
         lvPermissions.CheckBoxes = true;
         lvPermissions.FullRowSelect = true;
+
+        // 创建角色选择下拉框
+        Label lblRole = new Label();
+        lblRole.Text = "选择角色:";
+        lblRole.Location = new System.Drawing.Point(20, 20);
+        lblRole.Size = new System.Drawing.Size(70, 20);
+        this.Controls.Add(lblRole);
+
+        cboRole = new ComboBox();
+        cboRole.Location = new System.Drawing.Point(100, 20);
+        cboRole.Size = new System.Drawing.Size(200, 25);
+        cboRole.DropDownStyle = ComboBoxStyle.DropDownList;
+        cboRole.SelectedIndexChanged += CboRole_SelectedIndexChanged;
+        this.Controls.Add(cboRole);
 
         // 添加列
         lvPermissions.Columns.Add("权限名称", 200);
@@ -77,6 +65,9 @@ public partial class PermissionConfigForm : Form
         btnCancel.Size = new System.Drawing.Size(70, 30);
         btnCancel.Click += (sender, e) => this.Close();
         this.Controls.Add(btnCancel);
+
+        // 加载角色数据
+        LoadRoles();
     }
 
     // 加载角色下拉框
@@ -101,15 +92,14 @@ public partial class PermissionConfigForm : Form
         LoadPermissions();
     }
 
-
-    // 加载权限 - 修复DataTable使用Any方法的问题
+    // 加载权限
     private void LoadPermissions()
     {
-        if (cboRole.SelectedValue == null)
+        if (cboRole.SelectedItem == null)
             return;
 
-        int roleId = Convert.ToInt32(((DataRowView)cboRole.SelectedItem)["Id"]);
-        var rolePermissions = DatabaseHelper.GetRolePermissions(roleId);
+        int roleId = ((Role)cboRole.SelectedItem).Id;
+        var rolePermissions = DatabaseHelper.GetUserPermissions(roleId);
 
         lvPermissions.Items.Clear();
 
@@ -121,22 +111,20 @@ public partial class PermissionConfigForm : Form
             item.SubItems.Add(attribute.Description);
             item.Tag = permission;
 
-            // 修复：将DataTable转换为DataRow集合后使用Any方法
-            bool isAssigned = rolePermissions.AsEnumerable()
-                .Any(p => p["Code"].ToString() == permission.ToString());
+            bool isAssigned = rolePermissions.Contains(permission.ToString());
             item.Checked = isAssigned;
 
             lvPermissions.Items.Add(item);
         }
     }
 
-    // 保存权限配置 - 重构部分
+    // 保存权限配置
     private void btnSave_Click(object sender, EventArgs e)
     {
         if (cboRole.SelectedItem == null)
             return;
 
-        int roleId = Convert.ToInt32(((DataRowView)cboRole.SelectedItem)["Id"]);
+        int roleId = ((Role)cboRole.SelectedItem).Id;
 
         // 获取选中的权限
         var selectedPermissions = lvPermissions.CheckedItems.Cast<ListViewItem>()
@@ -150,11 +138,11 @@ public partial class PermissionConfigForm : Form
         MessageBox.Show("权限配置已保存", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
         this.Close();
     }
+
     // 获取权限信息
     private PermissionInfoAttribute GetPermissionInfo(Permission permission)
     {
         var field = typeof(Permission).GetField(permission.ToString());
         return field.GetCustomAttribute<PermissionInfoAttribute>();
     }
-
 }

@@ -11,14 +11,10 @@ namespace PermissionManagement
     {
         private readonly IPermissionService _permissionService;
         private string _username = "未登录";
-        private int _roleId = 0; // 0表示未登录角色
-        private List<string> _userPermissions = new List<string>();
+        private int _currentUserRoleId = 0;
 
         // 存储菜单项与权限的映射
         private Dictionary<Permission, ToolStripMenuItem> _permissionMenuMap = new Dictionary<Permission, ToolStripMenuItem>();
-        private ToolStripButton _loginButton;
-        private ToolStripButton _permissionConfigButton;
-        private ToolStripStatusLabel _statusLabel;
 
         public MainForm()
         {
@@ -34,37 +30,7 @@ namespace PermissionManagement
             this.Text = "权限管理系统";
             this.WindowState = FormWindowState.Maximized;
 
-            // 创建菜单栏
-            MenuStrip mainMenuStrip = new MenuStrip();
-            this.Controls.Add(mainMenuStrip);
-            this.MainMenuStrip = mainMenuStrip;
-
-            // 创建工具栏
-            ToolStrip toolStrip = new ToolStrip();
-            this.Controls.Add(toolStrip);
-
-            // 添加登录按钮
-            _loginButton = new ToolStripButton("登录");
-            _loginButton.Click += BtnLogin_Click;
-            toolStrip.Items.Add(_loginButton);
-
-            // 添加权限配置按钮
-            _permissionConfigButton = new ToolStripButton("权限配置");
-            _permissionConfigButton.Click += PermissionConfigButton_Click;
-            _permissionConfigButton.Enabled = false; // 默认禁用
-            toolStrip.Items.Add(_permissionConfigButton);
-
-            // 添加分隔符
-            toolStrip.Items.Add(new ToolStripSeparator());
-
-            // 添加状态栏
-            StatusStrip statusStrip = new StatusStrip();
-            this.Controls.Add(statusStrip);
-
-            // 添加状态标签
-            _statusLabel = new ToolStripStatusLabel($"当前用户: {_username}");
-            statusStrip.Items.Add(_statusLabel);
-
+            InitializeMenu();
         }
 
         // 初始化菜单
@@ -77,24 +43,13 @@ namespace PermissionManagement
 
         private void InitializeMenu()
         {
-            // 初始化基础菜单结构
-            var userMenu = new ToolStripMenuItem("用户");
-            mainMenuStrip.Items.Add(userMenu);
-
-            var loginMenuItem = new ToolStripMenuItem("登录");
-            loginMenuItem.Click += LoginMenuItem_Click;
-            userMenu.DropDownItems.Add(loginMenuItem);
-
-            // 新增删除用户菜单项
-            var deleteUserMenuItem = new ToolStripMenuItem("删除用户");
-            deleteUserMenuItem.Click += DeleteUserMenuItem_Click;
-            userMenu.DropDownItems.Add(deleteUserMenuItem);
-
-            // 其他菜单项...
-
             // 建立权限与菜单项的映射
-            _permissionMenuMap[Permission.Login] = loginMenuItem;
-            _permissionMenuMap[Permission.DeleteUser] = deleteUserMenuItem;
+            _permissionMenuMap[Permission.DeleteUser] = tsm_DeleteUser;
+            _permissionMenuMap[Permission.FileAccess] = tsm_File;
+            _permissionMenuMap[Permission.UserManagement] = tsm_UserManagement;
+            _permissionMenuMap[Permission.RoleManagement] = tsm_RoleManagement;
+            _permissionMenuMap[Permission.PermissionManagement] = tsm_PermissionManagement;
+            _permissionMenuMap[Permission.SystemSettings] = tsm_SystemSettings;
 
             // 应用权限
             ApplyPermissions();
@@ -102,7 +57,15 @@ namespace PermissionManagement
 
         private void ApplyPermissions()
         {
-            if (_currentUserRoleId <= 0) return;
+            if (_currentUserRoleId <= 0)
+            {
+                // 未登录，禁用除登录按钮外的所有菜单项
+                foreach (var menuItem in _permissionMenuMap.Values)
+                {
+                    menuItem.Enabled = false;
+                }
+                return;
+            }
 
             // 获取用户权限
             var permissions = DatabaseHelper.GetUserPermissions(_currentUserRoleId);
@@ -112,25 +75,10 @@ namespace PermissionManagement
             {
                 if (_permissionMenuMap.TryGetValue(permission, out var menuItem))
                 {
-                    menuItem.Enabled = permissions.Contains(permission);
+                    // 将 Permission 枚举值转换为字符串
+                    var permissionString = permission.ToString();
+                    menuItem.Enabled = permissions.Contains(permissionString);
                 }
-            }
-        }
-
-        // 登录按钮点击事件
-        private void BtnLogin_Click(object sender, EventArgs e)
-        {
-            using (LoginForm frm = new LoginForm())
-            {
-                frm.ShowDialog();
-            }
-        }
-
-        private void PermissionConfigButton_Click(object sender, EventArgs e)
-        {
-            using (PermissionConfigForm configForm = new PermissionConfigForm())
-            {
-                configForm.ShowDialog();
             }
         }
 
@@ -150,6 +98,36 @@ namespace PermissionManagement
                     //ShowRoleManagement();
                     break;
                 // 其他权限处理...
+            }
+        }
+
+        private void permissionManagementToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (PermissionConfigForm configForm = new PermissionConfigForm())
+            {
+                configForm.ShowDialog();
+            }
+        }
+
+        private void tsm_Login_Click(object sender, EventArgs e)
+        {
+            using (LoginForm frm = new LoginForm())
+            {
+                if (frm.ShowDialog() == DialogResult.OK)
+                {
+                    _currentUserRoleId = (int)frm.Tag; // 获取登录用户的角色ID
+                    ApplyPermissions(); // 重新应用权限
+                    _username = ((User)frm.cboUsername.SelectedItem).Username;
+                    lblCurrentUser.Text = $"当前用户: {_username}";
+                }
+            }
+        }
+
+        private void tsm_DeleteUser_Click(object sender, EventArgs e)
+        {
+            using (DeleteUserForm form = new DeleteUserForm())
+            {
+                form.ShowDialog();
             }
         }
     }

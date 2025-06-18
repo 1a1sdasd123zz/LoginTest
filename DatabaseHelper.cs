@@ -41,6 +41,8 @@ public static class DatabaseHelper
         try
         {
             CreateDatabase();
+            // 每次启动时重新插入权限
+            ReinsertPermissions();
         }
         catch (Exception ex)
         {
@@ -81,12 +83,13 @@ public static class DatabaseHelper
     private static void CreateTables(SQLiteConnection connection, SQLiteTransaction transaction)
     {
         // 创建角色表 - 使用Type列存储角色类型
-        using (var command = new SQLiteCommand(@"CREATE TABLE IF NOT EXISTS Roles (
-        Id INTEGER PRIMARY KEY AUTOINCREMENT,
-        Type INTEGER NOT NULL,
-        Name TEXT NOT NULL UNIQUE,
-        Description TEXT
-    )", connection, transaction))
+        using (var command = new SQLiteCommand(
+            @"CREATE TABLE IF NOT EXISTS Roles (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                Type INTEGER NOT NULL,
+                Name TEXT NOT NULL UNIQUE,
+                Description TEXT
+            )", connection, transaction))
         {
             command.ExecuteNonQuery();
         }
@@ -112,14 +115,13 @@ public static class DatabaseHelper
             command.ExecuteNonQuery();
         }
 
-        using (var command = new SQLiteCommand(@"CREATE TABLE IF NOT EXISTS Users (
+        // 创建角色表
+        using (var command = new SQLiteCommand(
+                   @"CREATE TABLE IF NOT EXISTS Roles (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
-            Username TEXT NOT NULL UNIQUE,
-            Password TEXT NOT NULL,
-            RoleId INTEGER NOT NULL,
-            IsActive BOOLEAN DEFAULT 1,
-            CreateTime DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (RoleId) REFERENCES Roles(Id)
+            Type INTEGER NOT NULL,
+            Name TEXT NOT NULL UNIQUE,
+            Description TEXT
         )", connection, transaction))
         {
             command.ExecuteNonQuery();
@@ -156,21 +158,9 @@ public static class DatabaseHelper
                 {
                     AssignPermissionToRole(connection, transaction, engineerRoleId, permissionIdMap["UserManagement"]);
                 }
-                if (permissionIdMap.ContainsKey("FileAccess"))
-                {
-                    AssignPermissionToRole(connection, transaction, engineerRoleId, permissionIdMap["FileAccess"]);
-                }
-
-                // 为操作员分配基本权限
-                if (permissionIdMap.ContainsKey("FileAccess"))
-                {
-                    AssignPermissionToRole(connection, transaction, operatorRoleId, permissionIdMap["FileAccess"]);
-                }
 
                 // 插入测试用户
                 InsertUser(connection, transaction, "admin", "admin123", adminRoleId);
-                InsertUser(connection, transaction, "engineer", "engineer123", engineerRoleId);
-                InsertUser(connection, transaction, "operator", "operator123", operatorRoleId);
             }
         }
     }
@@ -190,14 +180,13 @@ public static class DatabaseHelper
 
     private static int InsertPermission(SQLiteConnection connection, SQLiteTransaction transaction, string code, string name, string description)
     {
-        using (var command = new SQLiteCommand("INSERT INTO Permissions (Code, Name, Description) VALUES (@Code, @Name, @Description)", connection, transaction))
+        using (var command = new SQLiteCommand("INSERT OR IGNORE INTO Permissions (Code, Name, Description) VALUES (@Code, @Name, @Description)", connection, transaction))
         {
             command.Parameters.AddWithValue("@Code", code);
             command.Parameters.AddWithValue("@Name", name);
             command.Parameters.AddWithValue("@Description", description);
             command.ExecuteNonQuery();
 
-            // 修复：使用connection.LastInsertRowId而不是command.LastInsertRowId
             return Convert.ToInt32(connection.LastInsertRowId);
         }
     }
@@ -221,6 +210,120 @@ public static class DatabaseHelper
             command.Parameters.AddWithValue("@RoleId", roleId);
             command.ExecuteNonQuery();
         }
+    }
+
+    private static void ReinsertPermissions()
+    {
+        using (var connection = new SQLiteConnection(connectionString))
+        {
+            connection.Open();
+            using (var transaction = connection.BeginTransaction())
+            {
+                try
+                {
+                    // 获取现有权限列表
+                    var existingPermissions = GetExistingPermissions(connection);
+
+                    // 插入新增的权限定义（如果有）
+                    Dictionary<string, int> permissionIdMap = new Dictionary<string, int>();
+                    foreach (var permission in AllPermissions)
+                    {
+                        if (!existingPermissions.Contains(permission.Code))
+                        {
+                            int permissionId = InsertPermission(connection, transaction, permission.Code, permission.Name, permission.Description);
+                            permissionIdMap[permission.Code] = permissionId;
+                        }
+                        else
+                        {
+                            // 获取现有权限的ID
+                            int permissionId = GetPermissionId(connection, permission.Code);
+                            permissionIdMap[permission.Code] = permissionId;
+                        }
+                    }
+
+                    // 为管理员角色新增未分配的权限
+                    AddNewPermissionsToAdminRole(connection, transaction, permissionIdMap);
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    MessageBox.Show($"权限更新失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    throw;
+                }
+            }
+        }
+    }
+    private static List<string> GetExistingPermissions(SQLiteConnection connection)
+    {
+        var existingPermissions = new List<string>();
+        using (var command = new SQLiteCommand("SELECT Code FROM Permissions", connection))
+        using (var reader = command.ExecuteReader())
+        {
+            while (reader.Read())
+            {
+                existingPermissions.Add(reader.GetString(0));
+            }
+        }
+        return existingPermissions;
+    }
+
+    private static int GetPermissionId(SQLiteConnection connection, string code)
+    {
+        using (var command = new SQLiteCommand("SELECT Id FROM Permissions WHERE Code = @Code", connection))
+        {
+            command.Parameters.AddWithValue("@Code", code);
+            return Convert.ToInt32(command.ExecuteScalar());
+        }
+    }
+
+    private static void AddNewPermissionsToAdminRole(SQLiteConnection connection, SQLiteTransaction transaction, Dictionary<string, int> permissionIdMap)
+    {
+        // 获取管理员角色ID
+        int adminRoleId = GetAdminRoleId(connection);
+
+        // 获取管理员已有的权限
+        var adminPermissions = GetRolePermissions(connection, adminRoleId);
+
+        // 为管理员添加所有新增的权限
+        foreach (var permissionCode in permissionIdMap.Keys)
+        {
+            if (!adminPermissions.Contains(permissionCode))
+            {
+                AssignPermissionToRole(connection, transaction, adminRoleId, permissionIdMap[permissionCode]);
+            }
+        }
+    }
+
+    private static int GetAdminRoleId(SQLiteConnection connection)
+    {
+        using (var command = new SQLiteCommand("SELECT Id FROM Roles WHERE Type = @AdminType", connection))
+        {
+            command.Parameters.AddWithValue("@AdminType", (int)RoleType.Administrator);
+            return Convert.ToInt32(command.ExecuteScalar());
+        }
+    }
+
+    private static List<string> GetRolePermissions(SQLiteConnection connection, int roleId)
+    {
+        var permissions = new List<string>();
+        using (var command = new SQLiteCommand(@"
+        SELECT p.Code 
+        FROM Permissions p
+        JOIN RolePermissions rp ON p.Id = rp.PermissionId
+        WHERE rp.RoleId = @RoleId", connection))
+        {
+            command.Parameters.AddWithValue("@RoleId", roleId);
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    permissions.Add(reader.GetString(0));
+                }
+            }
+        }
+        return permissions;
     }
 
     public static bool ValidateUser(string username, string password, out int roleId)
@@ -349,10 +452,9 @@ public static class DatabaseHelper
         {
             connection.Open();
             string query = @"SELECT p.Code 
-                            FROM Permissions p 
-                            JOIN RolePermissions rp ON p.Id = rp.PermissionId 
-                            WHERE rp.RoleId = @RoleId";
-
+                        FROM Permissions p 
+                        JOIN RolePermissions rp ON p.Id = rp.PermissionId 
+                        WHERE rp.RoleId = @RoleId";
             using (var command = new SQLiteCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@RoleId", roleId);
@@ -370,6 +472,7 @@ public static class DatabaseHelper
     }
 
     // 获取所有用户
+    // DatabaseHelper.cs
     public static List<User> GetAllUsers()
     {
         var users = new List<User>();
@@ -554,5 +657,41 @@ public static class DatabaseHelper
         AddRole(RoleType.Administrator, "系统管理员", "拥有系统所有权限");
         AddRole(RoleType.Engineer, "工程师", "拥有设备管理和操作权限");
         AddRole(RoleType.Operator, "操作员", "拥有基本的操作权限");
+    }
+
+    public static void DeleteUser(int userId)
+    {
+        using (var connection = new SQLiteConnection(connectionString))
+        {
+            connection.Open();
+
+            // 检查是否是管理员自己
+            // 注意：实际应用中应在业务层检查，防止删除当前登录用户
+            using (var checkCommand = new SQLiteCommand("SELECT COUNT(*) FROM Users WHERE Id = @UserId AND RoleId = 1", connection))
+            {
+                checkCommand.Parameters.AddWithValue("@UserId", userId);
+                int isAdmin = Convert.ToInt32(checkCommand.ExecuteScalar());
+            }
+
+            using (var transaction = connection.BeginTransaction())
+            {
+                try
+                {
+                    // 删除用户
+                    using (var deleteUserCommand = new SQLiteCommand("DELETE FROM Users WHERE Id = @UserId", connection, transaction))
+                    {
+                        deleteUserCommand.Parameters.AddWithValue("@UserId", userId);
+                        deleteUserCommand.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
     }
 }

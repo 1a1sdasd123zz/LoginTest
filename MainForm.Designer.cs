@@ -31,13 +31,13 @@ namespace PermissionManagement
         private void InitializeComponent()
         {
             this.mainMenuStrip = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.userManagementToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.roleManagementToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.permissionManagementToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.systemSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_Login = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_File = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_UserManagement = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_DeleteUser = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_RoleManagement = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_PermissionManagement = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_SystemSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblCurrentUser = new System.Windows.Forms.ToolStripStatusLabel();
@@ -50,67 +50,64 @@ namespace PermissionManagement
             this.mainMenuStrip.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.mainMenuStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.mainMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.userManagementToolStripMenuItem,
-            this.roleManagementToolStripMenuItem,
-            this.permissionManagementToolStripMenuItem,
-            this.systemSettingsToolStripMenuItem});
+            this.tsm_Login,
+            this.tsm_File,
+            this.tsm_UserManagement,
+            this.tsm_RoleManagement,
+            this.tsm_PermissionManagement,
+            this.tsm_SystemSettings});
             this.mainMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.mainMenuStrip.Name = "mainMenuStrip";
             this.mainMenuStrip.Size = new System.Drawing.Size(800, 32);
             this.mainMenuStrip.TabIndex = 0;
             this.mainMenuStrip.Text = "menuStrip1";
             // 
-            // fileToolStripMenuItem
+            // tsm_Login
             // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.exitToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(62, 28);
-            this.fileToolStripMenuItem.Text = "文件";
+            this.tsm_Login.Name = "tsm_Login";
+            this.tsm_Login.Size = new System.Drawing.Size(62, 28);
+            this.tsm_Login.Text = "登录";
+            this.tsm_Login.Click += new System.EventHandler(this.tsm_Login_Click);
             // 
-            // exitToolStripMenuItem
+            // tsm_File
             // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(146, 34);
-            this.exitToolStripMenuItem.Text = "退出";
-            //this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            this.tsm_File.Name = "tsm_File";
+            this.tsm_File.Size = new System.Drawing.Size(62, 28);
+            this.tsm_File.Text = "文件";
             // 
-            // userManagementToolStripMenuItem
+            // tsm_UserManagement
             // 
-            this.userManagementToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItem1});
-            this.userManagementToolStripMenuItem.Name = "userManagementToolStripMenuItem";
-            this.userManagementToolStripMenuItem.Size = new System.Drawing.Size(98, 28);
-            this.userManagementToolStripMenuItem.Text = "用户管理";
-            //this.userManagementToolStripMenuItem.Click += new System.EventHandler(this.userManagementToolStripMenuItem_Click);
+            this.tsm_UserManagement.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsm_DeleteUser});
+            this.tsm_UserManagement.Name = "tsm_UserManagement";
+            this.tsm_UserManagement.Size = new System.Drawing.Size(98, 28);
+            this.tsm_UserManagement.Text = "用户管理";
             // 
-            // toolStripMenuItem1
+            // tsm_DeleteUser
             // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(285, 34);
-            this.toolStripMenuItem1.Text = "toolStripMenuItem1";
+            this.tsm_DeleteUser.Name = "tsm_DeleteUser";
+            this.tsm_DeleteUser.Size = new System.Drawing.Size(270, 34);
+            this.tsm_DeleteUser.Text = "删除用户";
+            this.tsm_DeleteUser.Click += new System.EventHandler(this.tsm_DeleteUser_Click);
             // 
-            // roleManagementToolStripMenuItem
+            // tsm_RoleManagement
             // 
-            this.roleManagementToolStripMenuItem.Name = "roleManagementToolStripMenuItem";
-            this.roleManagementToolStripMenuItem.Size = new System.Drawing.Size(98, 28);
-            this.roleManagementToolStripMenuItem.Text = "角色管理";
-            //this.roleManagementToolStripMenuItem.Click += new System.EventHandler(this.roleManagementToolStripMenuItem_Click);
+            this.tsm_RoleManagement.Name = "tsm_RoleManagement";
+            this.tsm_RoleManagement.Size = new System.Drawing.Size(98, 28);
+            this.tsm_RoleManagement.Text = "角色管理";
             // 
-            // permissionManagementToolStripMenuItem
+            // tsm_PermissionManagement
             // 
-            this.permissionManagementToolStripMenuItem.Name = "permissionManagementToolStripMenuItem";
-            this.permissionManagementToolStripMenuItem.Size = new System.Drawing.Size(98, 28);
-            this.permissionManagementToolStripMenuItem.Text = "权限管理";
-            //this.permissionManagementToolStripMenuItem.Click += new System.EventHandler(this.permissionManagementToolStripMenuItem_Click);
+            this.tsm_PermissionManagement.Name = "tsm_PermissionManagement";
+            this.tsm_PermissionManagement.Size = new System.Drawing.Size(98, 28);
+            this.tsm_PermissionManagement.Text = "权限管理";
+            this.tsm_PermissionManagement.Click += new System.EventHandler(this.permissionManagementToolStripMenuItem_Click);
             // 
-            // systemSettingsToolStripMenuItem
+            // tsm_SystemSettings
             // 
-            this.systemSettingsToolStripMenuItem.Name = "systemSettingsToolStripMenuItem";
-            this.systemSettingsToolStripMenuItem.Size = new System.Drawing.Size(98, 28);
-            this.systemSettingsToolStripMenuItem.Text = "系统设置";
-            //this.systemSettingsToolStripMenuItem.Click += new System.EventHandler(this.systemSettingsToolStripMenuItem_Click);
+            this.tsm_SystemSettings.Name = "tsm_SystemSettings";
+            this.tsm_SystemSettings.Size = new System.Drawing.Size(98, 28);
+            this.tsm_SystemSettings.Text = "系统设置";
             // 
             // statusStrip1
             // 
@@ -157,16 +154,16 @@ namespace PermissionManagement
         #endregion
 
         private System.Windows.Forms.MenuStrip mainMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem userManagementToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem roleManagementToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem permissionManagementToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem systemSettingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem tsm_File;
+        private System.Windows.Forms.ToolStripMenuItem tsm_UserManagement;
+        private System.Windows.Forms.ToolStripMenuItem tsm_RoleManagement;
+        private System.Windows.Forms.ToolStripMenuItem tsm_PermissionManagement;
+        private System.Windows.Forms.ToolStripMenuItem tsm_SystemSettings;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel lblCurrentUser;
-        private ToolStripMenuItem toolStripMenuItem1;
+        private ToolStripMenuItem tsm_Login;
+        private ToolStripMenuItem tsm_DeleteUser;
     }
 }
 
